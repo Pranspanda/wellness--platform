@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Star, Search, Heart, Target, TrendingUp, Flower2, Users, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -94,7 +96,7 @@ const Services = () => {
                 </div>
 
                 {/* Services Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-8">
                     {services.map((service, index) => (
                         <div
                             key={index}
@@ -131,7 +133,7 @@ const Services = () => {
                             </div>
 
                             {/* Decorative Corner */}
-                            <div className={`absolute top-0 right-0 w-20 h-20 bg-gradient-to-br ${service.gradient} opacity-10 rounded-bl-full rounded-tr-3xl`}></div>
+                            <div className={`absolute top-0 right-0 w-8 h-8 md:w-20 md:h-20 bg-gradient-to-br ${service.gradient} opacity-10 rounded-bl-full rounded-tr-3xl`}></div>
                         </div>
                     ))}
                 </div>

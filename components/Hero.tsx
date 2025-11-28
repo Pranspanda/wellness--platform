@@ -34,29 +34,29 @@ const Hero = () => {
                     A Youth Society
                 </h2>
 
-                <p className="text-gray-500 mb-6 md:mb-6 max-w-2xl mx-auto text-sm md:text-lg font-light tracking-wide">
+                <p className="text-gray-500 mb-6 md:mb-6 max-w-2xl mx-auto text-[10px] md:text-lg font-light tracking-wide whitespace-nowrap">
                     Guiding Youth Through Mindfulness, Healing & Conscious Growth
                 </p>
 
-                <div className="flex items-center justify-center gap-2 md:gap-4 mb-6 md:mb-6">
-                    <span className="text-pink-400 text-xl md:text-2xl animate-pulse">✨</span>
-                    <h3 className="text-xl md:text-4xl font-bold text-gray-800">
+                <div className="flex items-center justify-center gap-1 md:gap-4 mb-6 md:mb-6 whitespace-nowrap">
+                    <span className="text-pink-400 text-sm md:text-2xl animate-pulse">✨</span>
+                    <h3 className="text-sm md:text-4xl font-bold text-gray-800">
                         Balance Within, <span className="text-pink-500">Brilliance Outside</span>
                     </h3>
-                    <span className="text-pink-400 text-xl md:text-2xl animate-pulse">✨</span>
+                    <span className="text-pink-400 text-sm md:text-2xl animate-pulse">✨</span>
                 </div>
 
                 <p className="text-gray-600 mb-8 md:mb-12 max-w-4xl mx-auto leading-relaxed text-sm md:text-lg">
                     Empowering youth to overcome emotional struggles, unlock potential, and live consciously.
                 </p>
 
-                <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center items-center">
-                    <Button className="w-full sm:w-auto bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 text-white rounded-full px-8 py-6 md:px-10 md:py-7 text-base md:text-lg shadow-xl shadow-pink-200 transition-all hover:scale-105 hover:shadow-2xl border-0">
+                <div className="flex flex-col sm:flex-row gap-3 md:gap-6 justify-center items-center">
+                    <Button className="w-3/4 sm:w-auto bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 text-white rounded-full px-6 py-2 md:px-10 md:py-7 text-sm md:text-lg shadow-xl shadow-pink-200 transition-all hover:scale-105 hover:shadow-2xl border-0 h-auto">
                         Join the Youth Community <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
                     </Button>
 
-                    <Link href="/book" className="w-full sm:w-auto">
-                        <Button variant="outline" className="w-full border-2 border-pink-200 text-pink-600 hover:bg-pink-50 hover:border-pink-300 rounded-full px-8 py-6 md:px-10 md:py-7 text-base md:text-lg font-medium transition-all hover:scale-105 bg-white/50 backdrop-blur-sm">
+                    <Link href="/book" className="w-3/4 sm:w-auto">
+                        <Button variant="outline" className="w-full border-2 border-pink-200 text-pink-600 hover:bg-pink-50 hover:border-pink-300 rounded-full px-6 py-2 md:px-10 md:py-7 text-sm md:text-lg font-medium transition-all hover:scale-105 bg-white/50 backdrop-blur-sm h-auto">
                             Book Your Session Now
                         </Button>
                     </Link>
