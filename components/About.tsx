@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase';
 
 const About = () => {
     const supabase = createClient();
-    const { data: { publicUrl } } = supabase.storage.from('static-assets').getPublicUrl('manisha mam.png');
+    const { data: { publicUrl } } = supabase.storage.from('static-assets').getPublicUrl('manisha mam.jpg');
 
     return (
         <section className="py-8 md:py-20 px-4 md:px-6 bg-white overflow-hidden relative">
@@ -116,3 +116,4 @@ const About = () => {
 };
 
 export default About;
+
