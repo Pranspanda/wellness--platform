@@ -51,9 +51,11 @@ const Hero = () => {
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-3 md:gap-6 justify-center items-center">
-                    <Button className="w-3/4 sm:w-auto bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 text-white rounded-full px-6 py-2 md:px-10 md:py-7 text-sm md:text-lg shadow-xl shadow-pink-200 transition-all hover:scale-105 hover:shadow-2xl border-0 h-auto">
-                        Join the Youth Community <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
-                    </Button>
+                    <Link href="https://www.instagram.com/pranspanda.vitbhopal/?g=5" className="w-3/4 sm:w-auto">
+                        <Button className="w-3/4 sm:w-auto bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 text-white rounded-full px-6 py-2 md:px-10 md:py-7 text-sm md:text-lg shadow-xl shadow-pink-200 transition-all hover:scale-105 hover:shadow-2xl border-0 h-auto">
+                            Join the Youth Community <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
+                        </Button>
+                    </Link>
 
                     <Link href="/book" className="w-3/4 sm:w-auto">
                         <Button variant="outline" className="w-full border-2 border-pink-200 text-pink-600 hover:bg-pink-50 hover:border-pink-300 rounded-full px-6 py-2 md:px-10 md:py-7 text-sm md:text-lg font-medium transition-all hover:scale-105 bg-white/50 backdrop-blur-sm h-auto">
