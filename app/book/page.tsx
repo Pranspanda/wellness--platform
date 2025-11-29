@@ -161,8 +161,8 @@ export default function BookingPage() {
             console.error('Booking failed:', error);
             alert(`Booking failed: ${error.message} \nDetails: ${error.details || 'No details'}`);
         } else {
-            alert('Booking confirmed!');
-            router.push('/');
+            // alert('Booking confirmed!'); // Removed alert as we have a dedicated page now
+            router.push('/thank-you');
         }
         setSubmitting(false);
     };

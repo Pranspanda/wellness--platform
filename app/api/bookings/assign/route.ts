@@ -40,6 +40,34 @@ export async function POST(request: Request) {
         let meetingLink = null;
         let googleEventId = null;
 
+        // Helper to get customer email
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const bookingData = booking as any;
+
+        let customerEmail = null;
+
+        // 1. Try to extract from customer_notes (most specific to this booking)
+        if (booking.customer_notes) {
+            const emailMatch = booking.customer_notes.match(/Email:\s*([^,]+)/i);
+            if (emailMatch) {
+                customerEmail = emailMatch[1].trim();
+                console.log('Extracted email from notes:', customerEmail);
+            }
+        }
+
+        // 2. Check direct email columns on bookings table
+        if (!customerEmail) {
+            if (bookingData.email) customerEmail = bookingData.email;
+            else if (bookingData.customer_email) customerEmail = bookingData.customer_email;
+        }
+
+        // 3. Fallback to profile email
+        if (!customerEmail && booking.profiles?.email) {
+            customerEmail = booking.profiles.email;
+        }
+
+        console.log('Final customerEmail:', customerEmail);
+
         // 2. Google Calendar Integration
         if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_REFRESH_TOKEN) {
             try {
@@ -72,8 +100,8 @@ export async function POST(request: Request) {
                     },
                     attendees: [
                         { email: expert.email },
-                        { email: booking.profiles?.email },
-                    ],
+                        { email: customerEmail },
+                    ].filter(a => a.email), // Filter out undefined emails
                 };
 
                 const response = await calendar.events.insert({
@@ -105,7 +133,7 @@ export async function POST(request: Request) {
 
                 const mailOptions = {
                     from: process.env.EMAIL_USER,
-                    to: [expert.email, booking.profiles?.email].filter(Boolean).join(','),
+                    to: [expert.email, customerEmail].filter(Boolean).join(','),
                     subject: `Meeting Confirmed: ${booking.service_id}`,
                     text: `
                         Hello,
