@@ -4,74 +4,30 @@ import React from 'react';
 import { Star, Search, Heart, Target, TrendingUp, Flower2, Users, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { Service } from '@/types';
 
-const services = [
-    {
-        title: "Tarot Card Reading",
-        description: "Gain clarity and insight into your life's journey through personalized tarot readings",
-        icon: <Star className="w-3 h-3 md:w-6 md:h-6" />,
-        gradient: "from-orange-400 to-pink-500",
-        category: "Divination"
-    },
-    {
-        title: "Emotional & Mental Health",
-        description: "Stress, anxiety management and building emotional resilience for lasting wellbeing",
-        icon: <Heart className="w-3 h-3 md:w-6 md:h-6" />,
-        gradient: "from-pink-500 to-rose-500",
-        category: "Wellness"
-    },
-    {
-        title: "Finger Print Analysis",
-        description: "Discover your innate talents and personality through scientific dermatoglyphics",
-        icon: <Search className="w-3 h-3 md:w-6 md:h-6" />,
-        gradient: "from-rose-400 to-orange-400",
-        category: "Analysis"
-    },
-    {
-        title: "Mindfulness & Meditation",
-        description: "Customized meditation techniques and heart-brain coherence for emotional balance",
-        icon: <Flower2 className="w-3 h-3 md:w-6 md:h-6" />,
-        gradient: "from-pink-500 to-purple-500",
-        category: "Training"
-    },
-    {
-        title: "Personal Development",
-        description: "Self-awareness, career guidance, and time management for personal growth",
-        icon: <TrendingUp className="w-3 h-3 md:w-6 md:h-6" />,
-        gradient: "from-orange-400 to-pink-500",
-        category: "Growth"
-    },
-    {
-        title: "Relationship Skills",
-        description: "Build healthy connections and improve parent-youth communication",
-        icon: <Users className="w-3 h-3 md:w-6 md:h-6" />,
-        gradient: "from-rose-400 to-orange-400",
-        category: "Connection"
-    },
-    {
-        title: "Akashic Recording",
-        description: "Access your soul's records for deep insights into life patterns and healing",
-        icon: <Eye className="w-3 h-3 md:w-6 md:h-6" />,
-        gradient: "from-pink-500 to-purple-500",
-        category: "Spiritual"
-    },
-    {
-        title: "Inner Childhood Healing",
-        description: "Transform past wounds and reconnect with your authentic self",
-        icon: <Heart className="w-3 h-3 md:w-6 md:h-6" />,
-        gradient: "from-orange-400 to-pink-500",
-        category: "Healing"
-    },
-    {
-        title: "Balance Within Program",
-        description: "Comprehensive program for achieving inner balance and outer brilliance",
-        icon: <Target className="w-3 h-3 md:w-6 md:h-6" />,
-        gradient: "from-pink-500 to-rose-500",
-        category: "Program"
-    }
-];
+// Map categories to icons (fallback if no dynamic icon system yet)
+const getIconForCategory = (category: string) => {
+    const lower = category.toLowerCase();
+    if (lower.includes('divination') || lower.includes('tarot')) return <Star className="w-3 h-3 md:w-6 md:h-6" />;
+    if (lower.includes('wellness') || lower.includes('health')) return <Heart className="w-3 h-3 md:w-6 md:h-6" />;
+    if (lower.includes('analysis') || lower.includes('finger')) return <Search className="w-3 h-3 md:w-6 md:h-6" />;
+    if (lower.includes('training') || lower.includes('meditation')) return <Flower2 className="w-3 h-3 md:w-6 md:h-6" />;
+    if (lower.includes('growth') || lower.includes('development')) return <TrendingUp className="w-3 h-3 md:w-6 md:h-6" />;
+    if (lower.includes('connection') || lower.includes('relationship')) return <Users className="w-3 h-3 md:w-6 md:h-6" />;
+    if (lower.includes('spiritual') || lower.includes('akashic')) return <Eye className="w-3 h-3 md:w-6 md:h-6" />;
+    if (lower.includes('healing')) return <Heart className="w-3 h-3 md:w-6 md:h-6" />;
+    return <Target className="w-3 h-3 md:w-6 md:h-6" />;
+};
 
-const Services = () => {
+interface ServicesProps {
+    services: Service[];
+}
+
+const Services = ({ services }: ServicesProps) => {
+    // Filter only active services
+    const activeServices = services.filter(s => s.is_active);
+
     return (
         <section className="py-8 px-2 md:py-24 md:px-6 bg-gradient-to-b from-white via-pink-50/30 to-white relative overflow-hidden">
             {/* Animated Background Elements */}
@@ -97,13 +53,13 @@ const Services = () => {
 
                 {/* Services Grid */}
                 <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-8">
-                    {services.map((service, index) => (
+                    {activeServices.map((service) => (
                         <div
-                            key={index}
+                            key={service.id}
                             className="group relative bg-white rounded-xl md:rounded-3xl p-2 md:p-8 shadow-lg hover:shadow-2xl transition-all duration-500 border border-pink-100/50 hover:border-pink-200 hover:-translate-y-2 flex flex-col"
                         >
                             {/* Gradient Background on Hover */}
-                            <div className={`absolute inset-0 bg-gradient-to-br ${service.gradient} opacity-0 group-hover:opacity-5 rounded-3xl transition-opacity duration-500`}></div>
+                            <div className={`absolute inset-0 bg-gradient-to-br ${service.gradient || 'from-pink-500 to-orange-400'} opacity-0 group-hover:opacity-5 rounded-3xl transition-opacity duration-500`}></div>
 
                             <div className="relative z-10 flex flex-col h-full">
                                 {/* Category Badge */}
@@ -111,8 +67,8 @@ const Services = () => {
                                     <span className="text-[8px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                         {service.category}
                                     </span>
-                                    <div className={`w-6 h-6 md:w-12 md:h-12 rounded-lg md:rounded-2xl bg-gradient-to-br ${service.gradient} flex items-center justify-center text-white shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500`}>
-                                        {service.icon}
+                                    <div className={`w-6 h-6 md:w-12 md:h-12 rounded-lg md:rounded-2xl bg-gradient-to-br ${service.gradient || 'from-pink-500 to-orange-400'} flex items-center justify-center text-white shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500`}>
+                                        {getIconForCategory(service.category)}
                                     </div>
                                 </div>
 
@@ -126,14 +82,14 @@ const Services = () => {
 
                                 {/* CTA Button */}
                                 <Link href="/book" className="w-full mt-auto">
-                                    <Button className={`w-full py-1 h-6 md:h-auto md:py-6 rounded-md md:rounded-xl text-[8px] md:text-base font-semibold text-white bg-gradient-to-r ${service.gradient} hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-0`}>
-                                        Learn More
+                                    <Button className={`w-full py-1 h-6 md:h-auto md:py-6 rounded-md md:rounded-xl text-[8px] md:text-base font-semibold text-white bg-gradient-to-r ${service.gradient || 'from-pink-500 to-orange-400'} hover:shadow-lg transform hover:scale-105 transition-all duration-300 border-0`}>
+                                        {service.price === 0 ? 'Book Free Session' : 'Book Session'}
                                     </Button>
                                 </Link>
                             </div>
 
                             {/* Decorative Corner */}
-                            <div className={`absolute top-0 right-0 w-8 h-8 md:w-20 md:h-20 bg-gradient-to-br ${service.gradient} opacity-10 rounded-bl-full rounded-tr-3xl`}></div>
+                            <div className={`absolute top-0 right-0 w-8 h-8 md:w-20 md:h-20 bg-gradient-to-br ${service.gradient || 'from-pink-500 to-orange-400'} opacity-10 rounded-bl-full rounded-tr-3xl`}></div>
                         </div>
                     ))}
                 </div>

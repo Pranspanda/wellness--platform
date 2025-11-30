@@ -4,6 +4,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase';
 
 const Hero = () => {
@@ -19,9 +20,15 @@ const Hero = () => {
 
             <div className="relative z-10 max-w-4xl mx-auto">
                 {/* Logo Placeholder */}
-                <div className="mb-2 md:mb-2 w-32 h-32 md:w-48 md:h-48 flex items-center justify-center p-2 mx-auto">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={publicUrl} alt="Pranspanda Logo" className="w-full h-full object-contain" />
+                <div className="relative mb-2 md:mb-2 w-32 h-32 md:w-48 md:h-48 mx-auto">
+                    <Image
+                        src={publicUrl}
+                        alt="Pranspanda Logo"
+                        fill
+                        className="object-contain"
+                        priority
+                        sizes="(max-width: 768px) 128px, 192px"
+                    />
                 </div>
 
                 <h1 className="text-4xl md:text-8xl font-black mb-2 md:mb-2 tracking-tight font-dancing-script">

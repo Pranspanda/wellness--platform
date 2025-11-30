@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -15,104 +15,25 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { format } from 'date-fns';
-import { Loader2, CheckCircle, Star, Search, Heart, Target, TrendingUp, Flower2, Users, Eye, Calendar as CalendarIcon } from 'lucide-react';
+import { Loader2, CheckCircle, Star, Search, Heart, Target, TrendingUp, Flower2, Users, Eye } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { Service } from '@/types';
 
-// Hardcoded Services from Homepage
-const HOMEPAGE_SERVICES = [
-    {
-        id: 'tarot-reading',
-        title: "Tarot Card Reading",
-        description: "Gain clarity and insight into your life's journey through personalized tarot readings",
-        icon: <Star className="w-6 h-6 text-white" />,
-        gradient: "from-orange-400 to-pink-500",
-        category: "Divination",
-        price: 50, // Placeholder
-        duration: "60 min"
-    },
-    {
-        id: 'emotional-health',
-        title: "Emotional & Mental Health",
-        description: "Stress, anxiety management and building emotional resilience for lasting wellbeing",
-        icon: <Heart className="w-6 h-6 text-white" />,
-        gradient: "from-pink-500 to-rose-500",
-        category: "Wellness",
-        price: 80,
-        duration: "60 min"
-    },
-    {
-        id: 'fingerprint-analysis',
-        title: "Finger Print Analysis",
-        description: "Discover your innate talents and personality through scientific dermatoglyphics",
-        icon: <Search className="w-6 h-6 text-white" />,
-        gradient: "from-rose-400 to-orange-400",
-        category: "Analysis",
-        price: 100,
-        duration: "90 min"
-    },
-    {
-        id: 'mindfulness',
-        title: "Mindfulness & Meditation",
-        description: "Customized meditation techniques and heart-brain coherence for emotional balance",
-        icon: <Flower2 className="w-6 h-6 text-white" />,
-        gradient: "from-pink-500 to-purple-500",
-        category: "Training",
-        price: 40,
-        duration: "45 min"
-    },
-    {
-        id: 'personal-development',
-        title: "Personal Development",
-        description: "Self-awareness, career guidance, and time management for personal growth",
-        icon: <TrendingUp className="w-6 h-6 text-white" />,
-        gradient: "from-orange-400 to-pink-500",
-        category: "Growth",
-        price: 70,
-        duration: "60 min"
-    },
-    {
-        id: 'relationship-skills',
-        title: "Relationship Skills",
-        description: "Build healthy connections and improve parent-youth communication",
-        icon: <Users className="w-6 h-6 text-white" />,
-        gradient: "from-rose-400 to-orange-400",
-        category: "Connection",
-        price: 90,
-        duration: "60 min"
-    },
-    {
-        id: 'akashic-recording',
-        title: "Akashic Recording",
-        description: "Access your soul's records for deep insights into life patterns and healing",
-        icon: <Eye className="w-6 h-6 text-white" />,
-        gradient: "from-pink-500 to-purple-500",
-        category: "Spiritual",
-        price: 120,
-        duration: "90 min"
-    },
-    {
-        id: 'inner-child-healing',
-        title: "Inner Childhood Healing",
-        description: "Transform past wounds and reconnect with your authentic self",
-        icon: <Heart className="w-6 h-6 text-white" />,
-        gradient: "from-orange-400 to-pink-500",
-        category: "Healing",
-        price: 110,
-        duration: "90 min"
-    },
-    {
-        id: 'balance-within',
-        title: "Balance Within Program",
-        description: "Comprehensive program for achieving inner balance and outer brilliance",
-        icon: <Target className="w-6 h-6 text-white" />,
-        gradient: "from-pink-500 to-rose-500",
-        category: "Program",
-        price: 500,
-        duration: "Multi-session"
-    }
-];
+// Helper to map categories to icons
+const getIconForCategory = (category: string) => {
+    const lower = category.toLowerCase();
+    if (lower.includes('divination') || lower.includes('tarot')) return <Star className="w-6 h-6 text-white" />;
+    if (lower.includes('wellness') || lower.includes('health')) return <Heart className="w-6 h-6 text-white" />;
+    if (lower.includes('analysis') || lower.includes('finger')) return <Search className="w-6 h-6 text-white" />;
+    if (lower.includes('training') || lower.includes('meditation')) return <Flower2 className="w-6 h-6 text-white" />;
+    if (lower.includes('growth') || lower.includes('development')) return <TrendingUp className="w-6 h-6 text-white" />;
+    if (lower.includes('connection') || lower.includes('relationship')) return <Users className="w-6 h-6 text-white" />;
+    if (lower.includes('spiritual') || lower.includes('akashic')) return <Eye className="w-6 h-6 text-white" />;
+    if (lower.includes('healing')) return <Heart className="w-6 h-6 text-white" />;
+    return <Target className="w-6 h-6 text-white" />;
+};
 
 // Form Schema
 const bookingSchema = z.object({
@@ -125,7 +46,9 @@ const bookingSchema = z.object({
 
 export default function BookingPage() {
     const [step, setStep] = useState(1);
-    const [selectedService, setSelectedService] = useState<typeof HOMEPAGE_SERVICES[0] | null>(null);
+    const [services, setServices] = useState<Service[]>([]);
+    const [loadingServices, setLoadingServices] = useState(true);
+    const [selectedService, setSelectedService] = useState<Service | null>(null);
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
     const [submitting, setSubmitting] = useState(false);
 
@@ -136,6 +59,25 @@ export default function BookingPage() {
         resolver: zodResolver(bookingSchema)
     });
 
+    useEffect(() => {
+        const fetchServices = async () => {
+            const { data, error } = await supabase
+                .from('services')
+                .select('*')
+                .eq('is_active', true)
+                .order('created_at', { ascending: true });
+
+            if (error) {
+                console.error('Error fetching services:', error);
+            } else {
+                setServices(data || []);
+            }
+            setLoadingServices(false);
+        };
+
+        fetchServices();
+    }, []);
+
     const onSubmit = async (data: z.infer<typeof bookingSchema>) => {
         if (!selectedService || !selectedDate) return;
         setSubmitting(true);
@@ -143,14 +85,9 @@ export default function BookingPage() {
         // Get current user (assuming user is logged in, or handle guest booking)
         const { data: { user } } = await supabase.auth.getUser();
 
-        if (!user) {
-            // Guest booking flow
-            // We proceed without a user ID
-        }
-
         const { error } = await supabase.from('bookings').insert({
             user_id: user?.id || null,
-            service_id: selectedService.id, // Note: This ID might not exist in your DB if you haven't synced them.
+            service_id: selectedService.title, // Storing title as ID for now if services table isn't linked by FK yet, or use ID if schema updated
             expert_id: null, // No expert selection
             booking_date: selectedDate.toISOString(),
             status: 'pending',
@@ -161,7 +98,6 @@ export default function BookingPage() {
             console.error('Booking failed:', error);
             alert(`Booking failed: ${error.message} \nDetails: ${error.details || 'No details'}`);
         } else {
-            // alert('Booking confirmed!'); // Removed alert as we have a dedicated page now
             router.push('/thank-you');
         }
         setSubmitting(false);
@@ -193,40 +129,48 @@ export default function BookingPage() {
                 {step === 1 && (
                     <div>
                         <h2 className="text-2xl font-semibold mb-6 text-center">Select a Service</h2>
-                        <div className="grid grid-cols-3 gap-2 md:gap-6">
-                            {HOMEPAGE_SERVICES.map((service) => (
-                                <div
-                                    key={service.id}
-                                    onClick={() => setSelectedService(service)}
-                                    className={`group relative rounded-2xl md:rounded-3xl p-2 md:p-6 cursor-pointer transition-all duration-300 border-2 overflow-hidden ${selectedService?.id === service.id ? 'border-pink-500 shadow-xl scale-105' : 'border-transparent hover:border-pink-200 hover:shadow-lg bg-white shadow-md'}`}
-                                >
-                                    {/* Gradient Background on Hover/Active */}
-                                    <div className={`absolute inset-0 bg-gradient-to-br ${service.gradient} opacity-0 ${selectedService?.id === service.id ? 'opacity-10' : 'group-hover:opacity-5'} transition-opacity duration-300`}></div>
+                        {loadingServices ? (
+                            <div className="flex justify-center p-12">
+                                <Loader2 className="animate-spin w-8 h-8 text-pink-500" />
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-3 gap-2 md:gap-6">
+                                {services.map((service) => (
+                                    <div
+                                        key={service.id}
+                                        onClick={() => setSelectedService(service)}
+                                        className={`group relative rounded-2xl md:rounded-3xl p-2 md:p-6 cursor-pointer transition-all duration-300 border-2 overflow-hidden ${selectedService?.id === service.id ? 'border-pink-500 shadow-xl scale-105' : 'border-transparent hover:border-pink-200 hover:shadow-lg bg-white shadow-md'}`}
+                                    >
+                                        {/* Gradient Background on Hover/Active */}
+                                        <div className={`absolute inset-0 bg-gradient-to-br ${service.gradient || 'from-pink-500 to-orange-400'} opacity-0 ${selectedService?.id === service.id ? 'opacity-10' : 'group-hover:opacity-5'} transition-opacity duration-300`}></div>
 
-                                    <div className="relative z-10">
-                                        <div className="flex flex-col md:flex-row md:items-center justify-between mb-2 md:mb-4">
-                                            <span className="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 md:mb-0">
-                                                {service.category}
-                                            </span>
-                                            <div className={`w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-gradient-to-br ${service.gradient} flex items-center justify-center shadow-md`}>
-                                                {React.cloneElement(service.icon as React.ReactElement<any>, { className: "w-4 h-4 md:w-6 md:h-6 text-white" })}
+                                        <div className="relative z-10">
+                                            <div className="flex flex-col md:flex-row md:items-center justify-between mb-2 md:mb-4">
+                                                <span className="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 md:mb-0">
+                                                    {service.category}
+                                                </span>
+                                                <div className={`w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-gradient-to-br ${service.gradient || 'from-pink-500 to-orange-400'} flex items-center justify-center shadow-md`}>
+                                                    {getIconForCategory(service.category)}
+                                                </div>
+                                            </div>
+
+                                            <h3 className="text-xs md:text-xl font-bold text-gray-900 mb-1 md:mb-2 group-hover:text-pink-600 transition-colors leading-tight">
+                                                {service.title}
+                                            </h3>
+                                            <p className="hidden md:block text-sm text-gray-600 mb-4 line-clamp-2">
+                                                {service.description}
+                                            </p>
+
+                                            <div className="flex items-center justify-end text-sm font-medium text-gray-500 mt-auto">
+                                                <span className={`font-bold ${service.price === 0 ? 'text-green-600' : 'text-pink-600'}`}>
+                                                    {service.price === 0 ? 'Free' : `₹${service.price}`}
+                                                </span>
                                             </div>
                                         </div>
-
-                                        <h3 className="text-xs md:text-xl font-bold text-gray-900 mb-1 md:mb-2 group-hover:text-pink-600 transition-colors leading-tight">
-                                            {service.title}
-                                        </h3>
-                                        <p className="hidden md:block text-sm text-gray-600 mb-4 line-clamp-2">
-                                            {service.description}
-                                        </p>
-
-                                        <div className="flex items-center justify-end text-sm font-medium text-gray-500 mt-auto">
-                                            <span className="text-pink-600 font-bold">Free</span>
-                                        </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        )}
                         <div className="mt-12 flex justify-end">
                             <Button onClick={() => setStep(2)} disabled={!selectedService} className="w-full md:w-auto px-6 py-4 md:px-8 md:py-6 text-base md:text-lg rounded-full bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 border-0">
                                 Next Step
@@ -319,7 +263,9 @@ export default function BookingPage() {
                                     </div>
                                     <div className="flex justify-between items-center pt-2">
                                         <span className="text-gray-600">Price</span>
-                                        <span className="font-bold text-pink-600 text-lg">Free</span>
+                                        <span className={`font-bold text-lg ${selectedService?.price === 0 ? 'text-green-600' : 'text-pink-600'}`}>
+                                            {selectedService?.price === 0 ? 'Free' : `₹${selectedService?.price}`}
+                                        </span>
                                     </div>
                                 </div>
                             </div>

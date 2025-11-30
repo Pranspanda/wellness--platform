@@ -74,6 +74,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         Customers
                     </Link>
                     <Link
+                        href="/admin/services"
+                        className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:bg-primary/5 hover:text-primary rounded-xl transition-colors"
+                        onClick={() => setIsSidebarOpen(false)}
+                    >
+                        <LayoutDashboard className="w-5 h-5" />
+                        Services
+                    </Link>
+                    <Link
                         href="/admin/gallery"
                         className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:bg-primary/5 hover:text-primary rounded-xl transition-colors"
                         onClick={() => setIsSidebarOpen(false)}
